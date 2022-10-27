@@ -63,9 +63,7 @@ Sign in to Procurement Anywhere
     Close cookie popup
     Wait Until Page Contains Element    id:inputEmail
     Input Text    id:inputEmail    ${PA_USERNAME}
-    Wait Until Page Contains Element    id:inputPassword
     Input Password    id:inputPassword    ${PA_PASSWORD}
-    Wait Until Page Contains Element    ${sign_in_button}
     Click Button    ${sign_in_button}
     Wait Until Page Contains Element    id:dtBasicExample_filter
 
@@ -89,6 +87,7 @@ Process PO Numbers
     ${stateAssignments}=    Read Worksheet As Table    header=True
     Close Workbook
     Switch Browser    ${CHALLENGE_ALIAS}
+    # The page is reloaded to reset the timer.
     Reload Page
     WHILE    ${current_id} <= ${last_id}
         ${poNumber}=    Read PO Number from the challenge page with given ID    ${current_id}
@@ -140,10 +139,9 @@ Read and save the score
 
 Log out from Procurement Anywhere
     Switch Browser    ${PROCUREMENT_ANYWHERE_ALIAS}
-    Wait Until Page Contains Element    css:span[class="signed_in_user"] > a
     Click Link    css:span[class="signed_in_user"] > a
     Wait Until Page Contains Element    id:inputEmail
-    Close Window
+    Close Browser
 
 Submit form
     Switch Browser    ${CHALLENGE_ALIAS}
