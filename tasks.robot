@@ -20,7 +20,8 @@ ${PROCUREMENT_ANYWHERE_URL}
 ${PROCUREMENT_ANYWHERE_ALIAS}       BrowserPA
 ${PA_USERNAME}                      admin@procurementanywhere.com
 ${PA_PASSWORD}                      paypacksh!p
-${SCORE_FILE}                       ${OUTPUT_DIR}${/}score.txt
+${SCORE}                            ${OUTPUT_DIR}${/}score.txt
+${SCORE_SCREENSHOT}                 ${OUTPUT_DIR}${/}score.png
 
 
 *** Tasks ***
@@ -38,8 +39,7 @@ Do the challenge
 
 *** Keywords ***
 Open the challenge page
-    ${test}=    Open Available Browser    ${CHALLENGE_URL}    alias=${CHALLENGE_ALIAS}
-    Maximize Browser Window
+    ${test}=    Open Available Browser    ${CHALLENGE_URL}    alias=${CHALLENGE_ALIAS}    maximized=True
 
 Download the Excel file
     Switch Browser    ${CHALLENGE_ALIAS}
@@ -54,17 +54,15 @@ Read PO Number from the challenge page with given ID
     RETURN    ${poNumber}
 
 Open Procurement Anywhere
-    Open Available Browser    ${PROCUREMENT_ANYWHERE_URL}    alias=${PROCUREMENT_ANYWHERE_ALIAS}
-    Maximize Browser Window
+    Open Available Browser    ${PROCUREMENT_ANYWHERE_URL}    alias=${PROCUREMENT_ANYWHERE_ALIAS}    maximized=True
 
 Sign in to Procurement Anywhere
-    ${sign_in_button}=    Set Variable    css:button[class="btn btn-lg btn-primary btn-block text-uppercase"]
     Switch Browser    ${PROCUREMENT_ANYWHERE_ALIAS}
     Close cookie popup
-    Wait Until Page Contains Element    id:inputEmail
-    Input Text    id:inputEmail    ${PA_USERNAME}
-    Input Password    id:inputPassword    ${PA_PASSWORD}
-    Click Button    ${sign_in_button}
+    Execute Javascript
+    ...    document.querySelector("input[id='inputEmail']").value = "${PA_USERNAME}";
+    ...    document.querySelector("input[id='inputPassword']").value = "${PA_PASSWORD}";
+    ...    document.querySelector("button[class='btn btn-lg btn-primary btn-block text-uppercase']").click();
     Wait Until Page Contains Element    id:dtBasicExample_filter
 
 Close cookie popup
@@ -72,7 +70,7 @@ Close cookie popup
     Switch Browser    ${PROCUREMENT_ANYWHERE_ALIAS}
     TRY
         Wait Until Page Contains Element    ${accept_all_cookies_button}
-        Click Button    ${accept_all_cookies_button}
+        Execute Javascript    document.querySelector("button[id='onetrust-accept-btn-handler']").click();
         Wait Until Element Is Not Visible    ${accept_all_cookies_button}
     EXCEPT
         Log    Failed to close cookie popup.
@@ -126,26 +124,30 @@ Input data for one PO Number
     ...    ${orderTotal}
     ...    ${assignedAgent}
     Switch Browser    ${CHALLENGE_ALIAS}
-    Input Text    id:shipDate${id}    ${shipDate}    clear=True
-    Input Text    id:orderTotal${id}    ${orderTotal}    clear=True
-    Select From List By Value    id:agent${id}    ${assignedAgent}
+    Execute Javascript
+    ...    document.querySelector("input[id='shipDate${id}']").value = "${shipDate}";
+    ...    document.querySelector("input[id='orderTotal${id}']").value = "${orderTotal}";
+    ...    document.querySelector("select[id='agent${id}']").value = "${assignedAgent}";
 
 Read and save the score
     Switch Browser    ${CHALLENGE_ALIAS}
     Wait Until Page Contains Element    id:processing-time
     ${time}=    Get Text    id:processing-time
     ${accuracy}=    Get Text    id:accuracy
-    Create File    ${SCORE_FILE}    overwrite=True    content=Time: ${time}${\n}Accuracy: ${accuracy}
+    Create File    ${SCORE}    overwrite=True    content=Time: ${time}${\n}Accuracy: ${accuracy}
+    Screenshot    class:modal-body    ${SCORE_SCREENSHOT}
 
 Log out from Procurement Anywhere
     Switch Browser    ${PROCUREMENT_ANYWHERE_ALIAS}
-    Click Link    css:span[class="signed_in_user"] > a
+    Execute Javascript
+    ...    document.querySelector("span[class='signed_in_user'] a").click();
     Wait Until Page Contains Element    id:inputEmail
     Close Browser
 
 Submit form
     Switch Browser    ${CHALLENGE_ALIAS}
-    Click Button    id:submitbutton
+    Execute Javascript
+    ...    document.querySelector("button[id='submitbutton']").click();
 
 End challenge
     Switch Browser    ${CHALLENGE_ALIAS}

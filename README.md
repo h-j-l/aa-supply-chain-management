@@ -1,4 +1,3 @@
-
 # Automation Anywhere Labs - Supply Chain Management
 
 [Link](https://developer.automationanywhere.com/challenges/automationanywherelabs-supplychainmanagement.html)
@@ -19,5 +18,5 @@ For *Assigned Agent* we'll need to retrieve the PO Number's *State* from PA and 
 7. Find the agent's *Full Name* from the Excel file based on the agent's *State*
 8. Enter *Ship Date*, *Order Total* and *Assigned Agent* (Full Name) into the challenge page's form fields
 9. Submit and process next PO Number
-10. When finished, read and save the score
+10. When finished, save the score
 11. Log out from PA and close both browser windows
